@@ -1,0 +1,12 @@
+<div>
+  <p>dashboard works!</p>
+  <div *ngIf="!user">
+    <a href="http://localhost:8080/login?type=web">Login</a>
+  </div>
+  <div *ngIf="auth.IsLoggedIn() && user">
+    <h1>Welcome {{user.name}}</h1>
+  </div>
+
+
+
+</div>
