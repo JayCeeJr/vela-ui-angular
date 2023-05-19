@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
-import {BehaviorSubject, debounceTime, Observable} from "rxjs";
+import {BehaviorSubject, debounceTime, Observable, switchMap} from "rxjs";
 import {User} from "../types/definitions";
 
 const API_ROOT = 'http://localhost:8080'
@@ -23,10 +23,11 @@ export class AuthService {
       }
   });
   }
-  gettingUser: boolean = false;
 
   // @ts-ignore
   private authStatus: BehaviorSubject<User> = new BehaviorSubject<User>(null);
+  private refreshingToken: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private gettingUser: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public GetUser: Observable<User> = this.authStatus.asObservable();
   private setToken(token: Token) {
     sessionStorage.setItem('token', token.token);
@@ -41,12 +42,17 @@ export class AuthService {
     }
   }
   private getUser() {
-    if (this.GetToken()) {
+    if (this.GetToken() && !this.gettingUser.value) {
+      this.gettingUser.next(true);
       this.getUserInfo().pipe(debounceTime(1000)).subscribe({
         next: (res) => {
           this.authStatus.next(res);
+          this.gettingUser.next(false);
         },
-        error: (err) => console.log(err)
+        error: (err) => {
+          console.log(err);
+          this.refreshToken();
+        }
       })
     }
   }
@@ -59,11 +65,15 @@ export class AuthService {
     const params = new HttpParams().set('code', code).set('state', state)
     return this.http.get<Token>(`${API_ROOT}/authenticate`, { params });
   }
-  private refreshToken() {
-    this._refreshToken().subscribe({
-      next: res => this.setToken(res),
-      error: () => this.LogOut()
-    })
+  public refreshToken() {
+    if (this.refreshingToken.value) {
+      this.refreshingToken.next(true)
+      return this._refreshToken().subscribe({
+        next: res => {this.setToken(res); this.refreshingToken.next(false)},
+        error: () => this.LogOut()
+      })
+    }
+    return undefined
   }
 
   public LogOut() {
