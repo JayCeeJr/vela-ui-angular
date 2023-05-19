@@ -5,7 +5,7 @@ import {User} from "../types/definitions";
 
 const API_ROOT = 'http://localhost:8080'
 
-interface Token {
+export interface Token {
   token: string;
 }
 
@@ -51,7 +51,6 @@ export class AuthService {
         },
         error: (err) => {
           console.log(err);
-          this.refreshToken();
         }
       })
     }
@@ -66,7 +65,7 @@ export class AuthService {
     return this.http.get<Token>(`${API_ROOT}/authenticate`, { params });
   }
   public refreshToken() {
-    if (this.refreshingToken.value) {
+    if (!this.refreshingToken.value) {
       this.refreshingToken.next(true)
       return this._refreshToken().subscribe({
         next: res => {this.setToken(res); this.refreshingToken.next(false)},
@@ -81,8 +80,8 @@ export class AuthService {
     // @ts-ignore
     this.authStatus = new BehaviorSubject<User>(null);
   }
-  private _refreshToken(): Observable<Token> {
-    return this.http.get<Token>(`${API_ROOT}/refresh-token`);
+  public _refreshToken(): Observable<Token> {
+    return this.http.get<Token>(`${API_ROOT}/token-refresh`, { withCredentials: true });
   }
 
   private getUserInfo(): Observable<User> {

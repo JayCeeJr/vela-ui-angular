@@ -5,6 +5,7 @@
   </div>
   <div *ngIf="auth.IsLoggedIn() && user">
     <h1>Welcome {{user.name}}</h1>
+    <button (click)="getRepos()">Get Repos</button>
   </div>
 
 
