@@ -29,7 +29,7 @@ export class AuthService {
   private refreshingToken: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private gettingUser: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public GetUser: Observable<User> = this.authStatus.asObservable();
-  private setToken(token: Token) {
+  public setToken(token: Token) {
     sessionStorage.setItem('token', token.token);
   }
 
