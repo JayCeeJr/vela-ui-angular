@@ -24,23 +24,15 @@ export class TokenInterceptor implements HttpInterceptor {
       return this.auth._refreshToken().pipe(
         switchMap((token: any) => {
           this.isRefreshing.next(false);
-          this.refreshTokenSubject.next(token);
+          console.log(token);
           this.auth.setToken(token);
+          this.refreshTokenSubject.next(token);
           return next.handle(this.addToken(request, token.token));
-        }),
-        catchError((err) => {
-          this.auth.LogOut();
-          return throwError(err);
         })
       );
     } else {
-      return this.refreshTokenSubject.pipe(
-        filter(token => token != null),
-        take(1),
-        switchMap(jwt => {
-          return next.handle(this.addToken(request, jwt.token));
-        })
-      );
+      this.auth.LogOut();
+      return next.handle(request);
     }
   }
   private addToken(request: HttpRequest<any>, token: string) {

@@ -62,7 +62,7 @@ export class AuthService {
   }
   private authenticate(code: string, state: string): Observable<Token> {
     const params = new HttpParams().set('code', code).set('state', state)
-    return this.http.get<Token>(`${API_ROOT}/authenticate`, { params });
+    return this.http.get<Token>(`${API_ROOT}/authenticate`, { params, withCredentials: true });
   }
   public refreshToken() {
     if (!this.refreshingToken.value) {
@@ -76,6 +76,7 @@ export class AuthService {
   }
 
   public LogOut() {
+    console.log("logging Out");
     sessionStorage.removeItem('token');
     // @ts-ignore
     this.authStatus = new BehaviorSubject<User>(null);

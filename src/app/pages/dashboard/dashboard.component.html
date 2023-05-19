@@ -1,6 +1,6 @@
 <div>
   <p>dashboard works!</p>
-  <div *ngIf="!user">
+  <div *ngIf="!auth.IsLoggedIn()">
     <a href="http://localhost:8080/login?type=web">Login</a>
   </div>
   <div *ngIf="auth.IsLoggedIn() && user">
