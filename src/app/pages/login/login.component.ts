@@ -13,7 +13,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams
       .subscribe(params => {
-          console.log(params);
           this.auth.Login(params['code'], params['state']);
           this.router.navigate(['']);
         }
