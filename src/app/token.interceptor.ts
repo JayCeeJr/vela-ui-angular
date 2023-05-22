@@ -24,14 +24,12 @@ export class TokenInterceptor implements HttpInterceptor {
       return this.auth._refreshToken().pipe(
         switchMap((token: any) => {
           this.isRefreshing.next(false);
-          console.log(token);
           this.auth.setToken(token);
           this.refreshTokenSubject.next(token);
           return next.handle(this.addToken(request, token.token));
         })
       );
     } else {
-      this.auth.LogOut();
       return next.handle(request);
     }
   }
@@ -54,6 +52,8 @@ export class TokenInterceptor implements HttpInterceptor {
         if (err instanceof HttpErrorResponse) {
             return this.handle401Error(request, next)
           } else {
+          console.log('Caught outside handle401')
+          this.auth.LogOut();
           return throwError(err);
         }
       })
